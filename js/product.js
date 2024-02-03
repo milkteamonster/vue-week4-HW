@@ -1,6 +1,14 @@
 import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
+import pagination from './pagination.js';
+import ProductModal from './productModal.js';
+import DeleteModal from './deleteModal.js';
+
 let productModal = null;
 let delProductModal = null;
+
+// const pagination = {
+
+// }
 
 const App = {
 data(){
@@ -18,8 +26,9 @@ data(){
 mounted(){//要使用mounted 要抓到動元素，不然bootstrap modal裡的文字無法正常顯示 而且要先在上面設productModal, delProductModal為空物件，再用mounted取一次才行。
     //用refs寫
     // console.log(this.$refs)
-    this.productModal = new bootstrap.Modal(this.$refs.productModal);
-    this.delProductModal = new bootstrap.Modal(this.$refs.delProductModal);
+    // this.productModal = new bootstrap.Modal(this.$refs.productModal);
+    // this.delProductModal = new bootstrap.Modal(this.$refs.delProductModal);
+
     //用id寫
     // productModal = new bootstrap.Modal(document.querySelector('#productModal'), {
     //     keyboard: false
@@ -86,17 +95,20 @@ methods: {
                 imagesUrl: [], //tempProduct會一直變動，為了確保是初始狀態所以要重寫一次
             };
             this.isNew = true;
-            this.productModal.show(); //用refs有this時前面要加上this-> this.productModal.show(), 用id寫則不用-> productModal.show()
+            // this.productModal.show(); //用refs有this時前面要加上this-> this.productModal.show(), 用id寫則不用-> productModal.show()
+            this.$refs.pModal.openModal(); //這樣建立新產品的modal才能打開
         } else if(isNew === 'edit'){ //編輯
             this.tempProduct = { ...item };//淺拷貝
             if(!Array.isArray(this.tempProduct.imagesUrl)){
                 this.tempProduct.imagesUrl
             }
             this.isNew = false;
-            this.productModal.show(); //用refs有this時前面要加上this-> this.productModal.show(), 用id寫則不用-> productModal.show()
+            //this.productModal.show(); //用refs有this時前面要加上this-> this.productModal.show(), 用id寫則不用-> productModal.show()
+            this.$refs.pModal.openModal(); 
         } else if (isNew === 'delete'){
             this.tempProduct = { ...item};//淺拷貝
-            this.delProductModal.show(); //用refs有this時前面要加上this-> this.productModal.show(), 用id寫則不用-> productModal.show()
+            //this.delProductModal.show(); //用refs有this時前面要加上this-> this.productModal.show(), 用id寫則不用-> productModal.show()
+            this.$refs.dModal.openModal();
         }
     },
     //刪除產品資料
@@ -105,7 +117,8 @@ methods: {
         axios.delete(url)
         .then((res)=>{
             alert(res.data.message);
-            this.delProductModal.hide(); //刪除後隱藏Modal
+            //this.delProductModal.hide(); //刪除後隱藏Modal
+            this.$refs.dModal.closeModal();
             this.getProducts();//重新取得一次產品列表
         })
         .catch((err)=>{
@@ -117,5 +130,10 @@ methods: {
         this.tempProduct.imagesUrl.push('');
     }
 },
+components: {
+    pagination,
+    ProductModal,
+    DeleteModal,
+}
 };
 Vue.createApp(App).mount('#app');
